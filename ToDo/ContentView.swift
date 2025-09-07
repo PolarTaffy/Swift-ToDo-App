@@ -10,16 +10,20 @@ import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+    @Query private var items: [Task]
+    @State private var addingTask = false
 
     var body: some View {
         NavigationSplitView {
             List {
                 ForEach(items) { item in
                     NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
+                        //Task Viewing Screen
+                        Text(item.title).font(.title)
+                        Text(item.desc).font(.headline)
+                        Text("Task Created \(item.timeStamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
                     } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
+                        Text(item.title)
                     }
                 }
                 .onDelete(perform: deleteItems)
@@ -29,8 +33,12 @@ struct ContentView: View {
                     EditButton()
                 }
                 ToolbarItem {
-                    Button(action: addItem) {
+                    Button(action: {addItem()
+                        addingTask.toggle()}) {
                         Label("Add Item", systemImage: "plus")
+                        
+                    }.sheet(isPresented: $addingTask) {
+                        AddTask()
                     }
                 }
             }
@@ -57,5 +65,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
+        .modelContainer(for: Task.self, inMemory: true)
 }
